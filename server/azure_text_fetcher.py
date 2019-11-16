@@ -1,3 +1,5 @@
+# azure_text_fetcher.py
+
 import time
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
@@ -15,6 +17,7 @@ analyze_url = vision_base_url + "analyze"
 
 
 def analyze_text(image_url):
+
     recognize_printed_results = computervision_client.batch_read_file(image_url, raw=True)
 
     operation_location_remote = recognize_printed_results.headers["Operation-Location"]

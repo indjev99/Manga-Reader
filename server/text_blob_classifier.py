@@ -1,6 +1,9 @@
+# text_blob_classifier.py
+
 import math
 import numpy as np
 from scipy.spatial import ConvexHull
+from shapely.geometry.polygon import Polygon
 from collections import namedtuple
 import requests
 import cv2
@@ -48,26 +51,31 @@ def group_into_blobs(text_boxes, box_params):
     used = {}
     for i in range(len(box_params)):
         if i not in used:
-            crrblob = ''
+            txt = ''
             bbox = []
             j = i
             while j in child:
                 text_box = text_boxes[j]
-                crrblob = crrblob + text_box[0] + ' '
+                txt = txt + text_box[0] + ' '
                 bbox = update_bbox(bbox, text_box)
                 used[j] = True
                 j = child[j]
 
             used[j] = True
             text_box = text_boxes[j]
-            crrblob = crrblob + text_box[0] + ' '
+            txt = txt + text_box[0] + ' '
             bbox = update_bbox(bbox, text_box)
 
             bboxidx = ConvexHull(np.array(bbox)).vertices
             bbox = np.array([bbox[idx] for idx in bboxidx])
-            blobs.append((crrblob, bbox))
+            blobs.append((txt, bbox))
 
     return blobs
+
+
+def make_polygon(points):
+    poly = Polygon(points)
+    return poly
 
 
 def analyze_image(text_boxes):
@@ -85,7 +93,9 @@ def analyze_image(text_boxes):
         seglen = np.linalg.norm(mid1 - mid2)
         angle = math.atan2(mid1[0] - mid2[0], mid1[1] - mid2[1])
         box_params.append(TextBoxParams(seglen, angle, (np.array(mid2) + np.array(mid1)) / 2, side))
-    return group_into_blobs(text_boxes, box_params)
+    blobs = group_into_blobs(text_boxes, box_params)
+    poly_blobs = [(txt, make_polygon(hull)) for (txt, hull) in blobs]
+    return poly_blobs
 
 
 # Drawing functions

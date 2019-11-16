@@ -16,7 +16,7 @@ for(let i = 0; i < images.length; i++)
         currImage = -1;
     })
 }
-$.post('http://localhost:5000/init_images', JSON.stringify(sources));
+$.post('http://localhost:5000/init_images_request', JSON.stringify(sources));
 
 
 var minMoveDist = 30;
@@ -65,7 +65,7 @@ document.onmousemove = function(e)
 var wait = setInterval(function(){
     if (message)
     {
-        $.post('http://localhost:5000/register_mouse', JSON.stringify(message));
+        $.post('http://localhost:5000/register_mouse_request', JSON.stringify(message));
         message = null;
     }
 }, waitTime);
