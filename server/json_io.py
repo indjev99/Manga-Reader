@@ -24,7 +24,7 @@ def init_images_request():
 def register_mouse_request():
     
     data = request.get_json(force=True)
-    # print(data)
+    # do voice over if mouse over text
 
     return 'OK'
 
