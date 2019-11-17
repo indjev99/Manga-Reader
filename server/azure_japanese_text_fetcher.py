@@ -36,6 +36,5 @@ def analyze_japanese_text(image_url):
                 bbox_info[0], bbox_info[1] + bbox_info[3]]
 
         text_boxes.append((text, bbox))
-    
-    print(text_boxes)
+
     return text_boxes
