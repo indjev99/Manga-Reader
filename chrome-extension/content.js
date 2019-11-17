@@ -1,69 +1,87 @@
 // content.js
 
-var images = document.getElementsByTagName('img');
+const minMoveDist = 30;
+const waitTime = 250;
 
+var images = [];
 var sources = [];
-var currImage = -1;
-for(let i = 0; i < images.length; i++)
-{
-    sources.push(images[i].src);
-    images[i].addEventListener('mouseover', function()
-    {
-        currImage = i;
-    })
-    images[i].addEventListener('mouseout', function()
-    {
-        currImage = -1;
-    })
-}
-var initialized = false;
-$.post('http://localhost:5000/init_images_request', JSON.stringify(sources), function(data) { initialized = true; } );
-
-
-var minMoveDist = 30;
+var lastImage = -1;
 var lastX = 0;
 var lastY = 0;
-var lastImage = -1;
-var waitTime = 250;
 var message = null;
+var initialized = false;
+
+function updateImages(e)
+{
+    var newImages = document.getElementsByTagName('img');
+    var newSources = []
+    for(let i = 0; i < newImages.length; i++)
+    {
+        newSources.push(newImages[i].src);
+    }
+
+    var different = false;
+    if (sources.length != newSources.length) different = true;
+    for (let i = 0; i < sources.length && !different; i++)
+    {
+        if (sources[i] != newSources[i]) different = true;
+    }
+    if (!different) return;
+
+    console.log('New images!');
+
+    images = newImages;
+    sources = newSources;
+    lastImage = -1;
+    message = null;
+    initialized = false;
+    $.post('http://localhost:5000/init_images_request', JSON.stringify(sources), function(data) { initialized = true; });
+}
+updateImages(null);
+
+document.onclick = updateImages;
+
 document.onmousemove = function(e)
 {
-    if (currImage >= 0)
+    var x = e.pageX;
+    var y = e.pageY;
+    var pageRect = document.body.getBoundingClientRect();
+    x += pageRect.left;
+    y += pageRect.top;
+
+    var currImage = -1;
+
+    for (let i = 0; i < images.length && currImage == -1; i++)
     {
-        var x = e.pageX;
-        var y = e.pageY;
+        var rect = images[i].getBoundingClientRect();
 
-        var dist = (x - lastX) * (x - lastX) + (y - lastY) * (y - lastY);
+        var left = rect.left;
+        var right = rect.right;
 
-        if (lastImage != currImage && dist < minMoveDist * minMoveDist) return;
-
-        lastX = x;
-        lastY = y;
-        lastImage = currImage;
-
-        var rect = images[currImage].getBoundingClientRect();
-        var pageRect = document.body.getBoundingClientRect();
-
-        var left = rect.left - pageRect.left;
-        var right = rect.right - pageRect.left;
-
-        var top = rect.top - pageRect.top;
-        var bottom = rect.bottom - pageRect.top;
+        var top = rect.top ;
+        var bottom = rect.bottom;
 
         var imageX = (x - left) / (right - left);
         var imageY = (y - top) / (bottom - top);
 
-        if (imageX < 0) imageX = 0;
-        if (imageX > 1) imageX = 1;
+        if (imageX >= 0 && imageX <= 1 && imageY >=0 && imageY <= 1) currImage = i;
+    }
 
-        if (imageY < 0) imageY = 0;
-        if (imageY > 1) imageY = 1;
+    if (currImage >= 0)
+    {
+        var dist = (x - lastX) * (x - lastX) + (y - lastY) * (y - lastY);
+        if (lastImage == currImage && dist < minMoveDist * minMoveDist) return;
+
+        lastImage = currImage;
+        lastX = x;
+        lastY = y;
 
         message = {'id' : currImage, 'x' : imageX, 'y' : imageY};
     }
 }
 
-var wait = setInterval(function(){
+var wait = setInterval(function()
+{
     if (message && initialized)
     {
         $.post('http://localhost:5000/register_mouse_request', JSON.stringify(message));

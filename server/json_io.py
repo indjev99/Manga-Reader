@@ -1,6 +1,7 @@
 # json_io.py
 
 from image_initializer import initialize_images
+from text_voicer import voice_text_on_image
 
 from flask import Flask, jsonify, request, render_template
 app = Flask(__name__)
@@ -24,7 +25,7 @@ def init_images_request():
 def register_mouse_request():
     
     data = request.get_json(force=True)
-    # do voice over if mouse over text
+    voice_text_on_image(data['id'], data['x'], data['y'])
 
     return 'OK'
 
