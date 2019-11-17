@@ -14,9 +14,15 @@ def home_page():
 
 @app.route('/init_images_request', methods=['POST'])
 def init_images_request():
+    global image_blob_lists, image_sizes
 
     data = request.get_json(force=True)
-    initialize_images(data)
+    image_blob_lists, image_sizes = initialize_images(data['urls'], data['sizes'])
+    
+    for blob in image_blob_lists[0]:
+        print(blob[0])
+        print(blob[1])
+
 
     return 'OK'
 
@@ -25,7 +31,7 @@ def init_images_request():
 def register_mouse_request():
     
     data = request.get_json(force=True)
-    voice_text_on_image(data['id'], data['x'], data['y'])
+    voice_text_on_image(data['id'], data['x'], data['y'], image_blob_lists, image_sizes)
 
     return 'OK'
 

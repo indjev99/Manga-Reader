@@ -1,3 +1,5 @@
+# azure_speech_creator.py
+
 import azure.cognitiveservices.speech as speechsdk
 
 # Azure preliminaries begin

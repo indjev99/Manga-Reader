@@ -1,7 +1,7 @@
 // content.js
 
-const minMoveDist = 30;
-const waitTime = 250;
+const minMoveDist = 15;
+const waitTime = 400;
 
 var images = [];
 var sources = [];
@@ -14,9 +14,13 @@ var initialized = false;
 function updateImages(e)
 {
     var newImages = document.getElementsByTagName('img');
-    var newSources = []
+    var newSources = [];
+    var sizes = [];
     for(let i = 0; i < newImages.length; i++)
     {
+        sizes.push({
+            'w' : newImages[i].naturalWidth,
+            'h' : newImages[i].naturalHeight});
         newSources.push(newImages[i].src);
     }
 
@@ -28,14 +32,14 @@ function updateImages(e)
     }
     if (!different) return;
 
-    console.log('New images!');
-
     images = newImages;
     sources = newSources;
     lastImage = -1;
     message = null;
     initialized = false;
-    $.post('http://localhost:5000/init_images_request', JSON.stringify(sources), function(data) { initialized = true; });
+
+    var init_message = {'urls' : sources, 'sizes' : sizes};
+    $.post('http://localhost:5000/init_images_request', JSON.stringify(init_message), function(data) { initialized = true; });
 }
 updateImages(null);
 
