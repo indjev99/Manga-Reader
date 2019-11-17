@@ -6,7 +6,7 @@ from shapely.geometry.polygon import Polygon
 
 
 lastPlayed = ('', -1)
-def voice_text_on_image(id, relativeX, relativeY, image_blob_lists, image_urls, image_sizes):
+def voice_text_on_image(id, relativeX, relativeY, image_blob_lists, image_urls, image_sizes, output_language):
     global lastPlayed
 
     x = image_sizes[id].width * relativeX
@@ -23,4 +23,4 @@ def voice_text_on_image(id, relativeX, relativeY, image_blob_lists, image_urls, 
         image_url = image_urls[id]
         if (image_url, blob_id) != lastPlayed:
             lastPlayed = (image_url, blob_id)
-            play_speech_file(image_url, blob_id)
+            play_speech_file(image_url, blob_id, output_language)

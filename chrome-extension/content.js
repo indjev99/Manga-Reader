@@ -92,3 +92,15 @@ var wait = setInterval(function()
         message = null;
     }
 }, waitTime);
+
+document.onkeypress = function(e)
+{
+    if (e.key == 'e' || e.key == 'E')
+    {
+        $.post('http://localhost:5000/set_output_language_request', JSON.stringify('en'));
+    }
+    if (e.key == 'j' || e.key == 'J')
+    {
+        $.post('http://localhost:5000/set_output_language_request', JSON.stringify('ja'));
+    }
+}

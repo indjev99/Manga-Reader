@@ -8,6 +8,8 @@ import os
 
 from collections import namedtuple
 from azure_speech_creator import create_speech_file
+from azure_translator import translate
+from rolling_hash import rolling_hash
 
 SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.bmp']
 Size = namedtuple('Size', 'width height')
@@ -26,11 +28,13 @@ def extract_blobs(image_url, image_size):
 
 def generate_speech_files(image_blob_list, image_url):
     for i in range(len(image_blob_list)):
-        create_speech_file(image_blob_list[i][0], image_url, i)
+        create_speech_file(image_blob_list[i][0], image_url, i, 'en')
+        translation = translate(image_blob_list[i][0], 'en', 'ja')
+        create_speech_file(translation, image_url, i, 'ja')
 
 
 def json_filename(image_url):
-    url_hash = abs(hash(image_url[15:]))
+    url_hash = rolling_hash(image_url)
     return './cache/json/' + str(url_hash) + '.json'
 
 

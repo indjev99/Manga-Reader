@@ -15,8 +15,12 @@ vision_base_url = 'https://uksouth.api.cognitive.microsoft.com/vision/v2.0/'
 analyze_url = vision_base_url + 'analyze'
 # AZURE preliminaries END
 
+# from azure_japanese_text_fetcher import analyze_japanese_text
+
 
 def analyze_text(image_url):
+
+    # return analyze_japanese_text(image_url)
 
     recognize_printed_results = computervision_client.batch_read_file(image_url, raw=True)
 
