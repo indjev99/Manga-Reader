@@ -39,6 +39,31 @@ def update_bbox(bbox, text_box):
     return bbox
 
 
+def triangle_params(p1, p2, p3):
+    x1, y1 = p2 - p1
+    x2, y2 = p3 - p1
+    return abs(x1 * y2 - x2 * y1) / 2, (p1 + p2 + p3) / 3
+
+
+def get_direction_enlargement(center, p1, p2):
+    segment_mid = (p1 + p2) / 2
+    direction = segment_mid - center
+    dist = np.linalg.norm(direction)
+    if dist < 30:
+        return (30 - dist) * direction / dist
+    return 0 * direction
+
+
+def enlarge_bbox(bbox):
+    triangles = [triangle_params(bbox[0], bbox[i - 1], bbox[i]) for i in range(1, len(bbox))]
+    centroid = sum([triangle[0] * triangle[1] for triangle in triangles]) / sum([triangle[0] for triangle in triangles])
+    big_bbox = [1.2 * (bbox_point - centroid) + centroid for bbox_point in bbox]
+    adjustments = [get_direction_enlargement(centroid, bbox[i], bbox[i - 1]) for i in range(len(bbox))]
+    return [
+        big_bbox[i] + adjustments[i] + adjustments[(1 - int(i == len(bbox) - 1)) * (i + 1)] for i in range(len(bbox))
+    ]
+
+
 def group_into_blobs(text_boxes, box_params):
     child = {}
     for i in range(len(box_params)):
@@ -68,14 +93,11 @@ def group_into_blobs(text_boxes, box_params):
 
             bboxidx = ConvexHull(np.array(bbox)).vertices
             bbox = np.array([bbox[idx] for idx in bboxidx])
-            blobs.append((txt, bbox))
+            bbox = enlarge_bbox(bbox)
+            poly_bbox = Polygon(bbox)
+            blobs.append((txt, poly_bbox))
 
     return blobs
-
-
-def make_polygon(points):
-    poly = Polygon(points)
-    return poly
 
 
 def analyze_image(text_boxes):
@@ -94,8 +116,7 @@ def analyze_image(text_boxes):
         angle = math.atan2(mid1[0] - mid2[0], mid1[1] - mid2[1])
         box_params.append(TextBoxParams(seglen, angle, (np.array(mid2) + np.array(mid1)) / 2, side))
     blobs = group_into_blobs(text_boxes, box_params)
-    poly_blobs = [(txt, make_polygon(hull)) for (txt, hull) in blobs]
-    return poly_blobs
+    return blobs
 
 
 # Drawing functions
