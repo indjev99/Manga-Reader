@@ -2,27 +2,25 @@
 
 from image_initializer import initialize_images
 from text_voicer import voice_text_on_image
-
 from flask import Flask, jsonify, request, render_template
+
 app = Flask(__name__)
 
 
 @app.route('/')
 def home_page():
-    return "Home page!"
+    return 'Home page!'
 
 
 @app.route('/init_images_request', methods=['POST'])
 def init_images_request():
-    global image_blob_lists, image_sizes
+    global image_blob_lists, image_sizes, url_hash
+    
+    print('Initializing images...')
 
     data = request.get_json(force=True)
-    image_blob_lists, image_sizes = initialize_images(data['urls'], data['sizes'])
-    
-    for blob in image_blob_lists[0]:
-        print(blob[0])
-        print(blob[1])
-
+    url_hash = abs(hash(data['url']))
+    image_blob_lists, image_sizes = initialize_images(data['image_urls'], data['image_sizes'], url_hash, data['url'])
 
     return 'OK'
 
@@ -31,7 +29,7 @@ def init_images_request():
 def register_mouse_request():
     
     data = request.get_json(force=True)
-    voice_text_on_image(data['id'], data['x'], data['y'], image_blob_lists, image_sizes)
+    voice_text_on_image(data['id'], data['x'], data['y'], image_blob_lists, image_sizes, url_hash)
 
     return 'OK'
 

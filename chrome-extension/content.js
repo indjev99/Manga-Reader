@@ -32,13 +32,15 @@ function updateImages(e)
     }
     if (!different) return;
 
+    var url = window.location.href;
+    console.log(url)
     images = newImages;
     sources = newSources;
     lastImage = -1;
     message = null;
     initialized = false;
 
-    var init_message = {'urls' : sources, 'sizes' : sizes};
+    var init_message = {'url' : url, 'image_urls' : sources, 'image_sizes' : sizes};
     $.post('http://localhost:5000/init_images_request', JSON.stringify(init_message), function(data) { initialized = true; });
 }
 updateImages(null);

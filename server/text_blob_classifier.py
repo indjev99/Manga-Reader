@@ -2,11 +2,11 @@
 
 import math
 import numpy as np
-from scipy.spatial import ConvexHull
-from shapely.geometry.polygon import Polygon
-from collections import namedtuple
 import requests
 import cv2
+
+from scipy.spatial import ConvexHull
+from collections import namedtuple
 
 TextBoxParams = namedtuple('TextBoxParams', 'text_size text_angle center left_side_middle')
 
@@ -92,10 +92,9 @@ def group_into_blobs(text_boxes, box_params):
             bbox = update_bbox(bbox, text_box)
 
             bboxidx = ConvexHull(np.array(bbox)).vertices
-            bbox = np.array([bbox[idx] for idx in bboxidx])
+            bbox = [bbox[idx] for idx in bboxidx]
             bbox = enlarge_bbox(bbox)
-            poly_bbox = Polygon(bbox)
-            blobs.append((txt, poly_bbox))
+            blobs.append((txt, np.array(bbox).tolist()))
 
     return blobs
 
