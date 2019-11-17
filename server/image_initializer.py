@@ -10,6 +10,7 @@ from collections import namedtuple
 from azure_speech_creator import create_speech_file
 
 SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.bmp']
+Size = namedtuple('Size', 'width height')
 
 
 def check_link(image_url):
@@ -17,39 +18,42 @@ def check_link(image_url):
 
 
 def extract_blobs(image_url, image_size):
-    if check_link(image_url) and image_size[0] > 5 and image_size[1] > 5:
+    if check_link(image_url) and image_size.width > 5 and image_size.height > 5:
         return text_blob_classifier.analyze_image(azure_text_fetcher.analyze_text(image_url))
     else:
         return []
 
 
-def generate_speech_files(image_blob_lists, url_hash):
-    for i in range(len(image_blob_lists)):
-        for j in range(len(image_blob_lists[i])):
-            create_speech_file(image_blob_lists[i][j][0], url_hash, i, j)
+def generate_speech_files(image_blob_list, image_url):
+    for i in range(len(image_blob_list)):
+        create_speech_file(image_blob_list[i][0], image_url, i)
 
 
-def json_filename(url_hash):
+def json_filename(image_url):
+    url_hash = abs(hash(image_url[15:]))
     return './cache/json/' + str(url_hash) + '.json'
 
 
-def initialize_images(image_urls, image_szs, url_hash, url):
-    filename = json_filename(url_hash)
+def initialize_image(image_url, image_size):
+    filename = json_filename(image_url)
+
     if os.path.isfile(filename):
         with open(filename, 'r') as infile:
             data = json.load(infile)
-            image_blob_lists = data['image_blob_lists']
-            image_sizes = data['image_sizes']
+            image_blob_list = data['image_blob_list']
     else:
-        image_sizes = [[sz['w'], sz['h']] for sz in image_szs]
-        image_blob_lists = [extract_blobs(image_urls[i], image_sizes[i]) for i in range(len(image_urls))]
-        generate_speech_files(image_blob_lists, url_hash)
-
+        image_blob_list = extract_blobs(image_url, image_size)
         data = {}
-        data['url'] = url
-        data['image_blob_lists'] = image_blob_lists
-        data['image_sizes'] = image_sizes
+        data['image_url'] = image_url
+        data['image_blob_list'] = image_blob_list
+        generate_speech_files(image_blob_list, image_url)
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
 
+    return image_blob_list
+
+
+def initialize_images(image_urls, image_szs):
+    image_sizes = [Size(sz['w'], sz['h']) for sz in image_szs]
+    image_blob_lists = [initialize_image(image_urls[i], image_sizes[i]) for i in range(len(image_urls))]
     return image_blob_lists, image_sizes

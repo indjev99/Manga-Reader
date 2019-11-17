@@ -14,13 +14,13 @@ def home_page():
 
 @app.route('/init_images_request', methods=['POST'])
 def init_images_request():
-    global image_blob_lists, image_sizes, url_hash
+    global image_blob_lists, image_urls, image_sizes
     
     print('Initializing images...')
 
     data = request.get_json(force=True)
-    url_hash = abs(hash(data['url']))
-    image_blob_lists, image_sizes = initialize_images(data['image_urls'], data['image_sizes'], url_hash, data['url'])
+    image_urls = data['image_urls']
+    image_blob_lists, image_sizes = initialize_images(image_urls, data['image_sizes'])
 
     return 'OK'
 
@@ -29,7 +29,7 @@ def init_images_request():
 def register_mouse_request():
     
     data = request.get_json(force=True)
-    voice_text_on_image(data['id'], data['x'], data['y'], image_blob_lists, image_sizes, url_hash)
+    voice_text_on_image(data['id'], data['x'], data['y'], image_blob_lists, image_urls, image_sizes)
 
     return 'OK'
 

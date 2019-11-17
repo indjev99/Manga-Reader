@@ -10,15 +10,16 @@ speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_r
 # Azure preliminaries end
 
 
-def speech_filename(url_hash, image_id, blob_id):
-    return './cache/speech/' + str(url_hash) + '_' + str(image_id) + '_' + str(blob_id) + '.wav'
+def speech_filename(image_url, blob_id):
+    url_hash = abs(hash(image_url[15:]))
+    return './cache/speech/' + str(url_hash) + '_' + str(blob_id) + '.wav'
 
 
-def create_speech_file(input_text, url_hash, image_id, blob_id):
-    audio_output = speechsdk.AudioOutputConfig(filename=speech_filename(url_hash, image_id, blob_id))
+def create_speech_file(input_text, image_url, blob_id):
+    audio_output = speechsdk.AudioOutputConfig(filename=speech_filename(image_url, blob_id))
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_output)
     result = speech_synthesizer.speak_text_async(input_text).get()
 
 
-def play_speech_file(url_hash, image_id, blob_id):
-    playsound(speech_filename(url_hash, image_id, blob_id))
+def play_speech_file(image_url, blob_id):
+    playsound(speech_filename(image_url, blob_id))
