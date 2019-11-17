@@ -8,4 +8,4 @@ def rolling_hash(s):
     ans = 0
     for c in s:
         ans = (ans * base + ord(c)) % modulo
-    return ans
+    return int(ans)

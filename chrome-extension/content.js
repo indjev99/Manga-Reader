@@ -103,4 +103,15 @@ document.onkeypress = function(e)
     {
         $.post('http://localhost:5000/set_output_language_request', JSON.stringify('ja'));
     }
+
+    if (e.key == 'n' || e.key == 'N')
+    {
+        initialized = false
+        $.post('http://localhost:5000/set_input_language_request', JSON.stringify('en'), function(data) { initialized = true; });
+    }
+    if (e.key == 'p' || e.key == 'P')
+    {
+        initialized = false
+        $.post('http://localhost:5000/set_input_language_request', JSON.stringify('ja'), function(data) { initialized = true; });
+    }
 }

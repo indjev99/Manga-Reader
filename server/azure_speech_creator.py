@@ -11,18 +11,18 @@ speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_r
 # Azure preliminaries end
 
 
-def speech_filename(image_url, blob_id, lang):
+def speech_filename(image_url, blob_id, in_lang, out_lang):
     url_hash = rolling_hash(image_url)
-    return './cache/speech/' + str(url_hash) + '_' + str(blob_id) + '_' + lang + '.wav'
+    return './cache/speech/' + str(url_hash) + '_' + str(blob_id) + '_' + in_lang + '_' + out_lang + '.wav'
 
 
-def create_speech_file(input_text, image_url, blob_id, lang):
-    audio_output = speechsdk.AudioOutputConfig(filename=speech_filename(image_url, blob_id, lang))
-    if (lang == 'ja'): speech_config.speech_synthesis_language = 'ja-JP'
+def create_speech_file(input_text, image_url, blob_id, in_lang, out_lang):
+    audio_output = speechsdk.AudioOutputConfig(filename=speech_filename(image_url, blob_id, in_lang, out_lang))
+    if (out_lang == 'ja'): speech_config.speech_synthesis_language = 'ja-JP'
     else: speech_config.speech_synthesis_language = 'en-UK'
     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_output)
     result = speech_synthesizer.speak_text_async(input_text).get()
 
 
-def play_speech_file(image_url, blob_id, lang):
-    playsound(speech_filename(image_url, blob_id, lang))
+def play_speech_file(image_url, blob_id, in_lang, out_lang):
+    playsound(speech_filename(image_url, blob_id, in_lang, out_lang))
