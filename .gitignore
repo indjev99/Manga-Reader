@@ -1,0 +1,3 @@
+server/cache/speech/*
+server/cache/json/*
+server/__pycache__/*

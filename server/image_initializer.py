@@ -16,8 +16,8 @@ def check_link(image_url):
     return np.any([(image_format in image_url) for image_format in SUPPORTED_FORMATS])
 
 
-def extract_blobs(image_url):
-    if check_link(image_url):
+def extract_blobs(image_url, image_size):
+    if check_link(image_url) and image_size[0] > 5 and image_size[1] > 5:
         return text_blob_classifier.analyze_image(azure_text_fetcher.analyze_text(image_url))
     else:
         return []
@@ -41,8 +41,8 @@ def initialize_images(image_urls, image_szs, url_hash, url):
             image_blob_lists = data['image_blob_lists']
             image_sizes = data['image_sizes']
     else:
-        image_blob_lists = [extract_blobs(image_url) for image_url in image_urls]
         image_sizes = [[sz['w'], sz['h']] for sz in image_szs]
+        image_blob_lists = [extract_blobs(image_urls[i], image_sizes[i]) for i in range(len(image_urls))]
         generate_speech_files(image_blob_lists, url_hash)
 
         data = {}

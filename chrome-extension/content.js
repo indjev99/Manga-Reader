@@ -33,7 +33,6 @@ function updateImages(e)
     if (!different) return;
 
     var url = window.location.href;
-    console.log(url)
     images = newImages;
     sources = newSources;
     lastImage = -1;

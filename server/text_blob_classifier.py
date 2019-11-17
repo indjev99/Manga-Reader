@@ -79,17 +79,15 @@ def group_into_blobs(text_boxes, box_params):
             txt = ''
             bbox = []
             j = i
-            while j in child:
+            while True:
                 text_box = text_boxes[j]
-                txt = txt + text_box[0] + ' '
+                if txt == '': txt = text_box[0]
+                elif txt[-1] == '-': txt = txt[:-1] + text_box[0]
+                else: txt = txt + ' ' + text_box[0]
                 bbox = update_bbox(bbox, text_box)
                 used[j] = True
-                j = child[j]
-
-            used[j] = True
-            text_box = text_boxes[j]
-            txt = txt + text_box[0] + ' '
-            bbox = update_bbox(bbox, text_box)
+                if j in child: j = child[j]
+                else: break
 
             bboxidx = ConvexHull(np.array(bbox)).vertices
             bbox = [bbox[idx] for idx in bboxidx]
